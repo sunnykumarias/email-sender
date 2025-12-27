@@ -44,8 +44,10 @@ export async function GET(request: NextRequest) {
         if (msg.labelIds?.includes('UNREAD')) {
             await gmail.users.messages.batchModify({
                 userId: 'me',
-                ids: [id],
-                removeLabelIds: ['UNREAD'],
+                requestBody: {
+                    ids: [id],
+                    removeLabelIds: ['UNREAD'],
+                }
             });
         }
 
