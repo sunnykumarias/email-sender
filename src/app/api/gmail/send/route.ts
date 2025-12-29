@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const { to, cc, bcc, subject, body, threadId, messageId } = await request.json();
+        const { to, cc, bcc, subject, body, threadId, messageId, attachments } = await request.json();
 
         if (!to || !subject || !body) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -37,8 +37,10 @@ export async function POST(request: NextRequest) {
             body,
             threadId,
             messageId,
-            customFooter: settings?.signature_html || undefined
+            customFooter: settings?.signature_html || undefined,
+            attachments
         });
+
 
         const response = await gmail.users.messages.send({
             userId: 'me',

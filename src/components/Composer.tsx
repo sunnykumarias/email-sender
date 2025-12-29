@@ -2,16 +2,32 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { X, Minus, Maximize2, Send, X as CloseIcon } from 'lucide-react';
+import { X, Minus, Maximize2, Send, X as CloseIcon, Paperclip, FileText, Trash2 } from 'lucide-react';
 import 'react-quill-new/dist/quill.snow.css'; // Use react-quill-new for better support or regular react-quill
 import { FOOTER_HTML } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
+interface Attachment {
+    filename: string;
+    mimeType: string;
+    content: string; // Base64
+    size: number;
+}
+
 interface ComposerProps {
     onClose: () => void;
-    onSend: (data: { to: string; cc?: string; bcc?: string; subject: string; body: string; threadId?: string; messageId?: string }) => void;
+    onSend: (data: {
+        to: string;
+        cc?: string;
+        bcc?: string;
+        subject: string;
+        body: string;
+        threadId?: string;
+        messageId?: string;
+        attachments?: { filename: string; mimeType: string; content: string }[]
+    }) => void;
     replyTo?: {
         to: string;
         subject: string;
@@ -34,6 +50,7 @@ export default function Composer({ onClose, onSend, replyTo }: ComposerProps) {
     const [isMinimized, setIsMinimized] = useState(false);
     const [isMaximized, setIsMaximized] = useState(false);
     const [customFooter, setCustomFooter] = useState(FOOTER_HTML);
+    const [attachments, setAttachments] = useState<Attachment[]>([]);
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -87,6 +104,39 @@ export default function Composer({ onClose, onSend, replyTo }: ComposerProps) {
         }
     };
 
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+
+        const newAttachments: Attachment[] = [];
+
+        for (const file of files) {
+            const reader = new FileReader();
+            const base64Promise = new Promise<string>((resolve) => {
+                reader.onload = () => {
+                    const base64 = (reader.result as string).split(',')[1];
+                    resolve(base64);
+                };
+            });
+            reader.readAsDataURL(file);
+            const content = await base64Promise;
+
+            newAttachments.push({
+                filename: file.name,
+                mimeType: file.type || 'application/octet-stream',
+                content,
+                size: file.size
+            });
+        }
+
+        setAttachments(prev => [...prev, ...newAttachments]);
+        e.target.value = ''; // Reset input
+    };
+
+    const removeAttachment = (index: number) => {
+        setAttachments(prev => prev.filter((_, i) => i !== index));
+    };
+
     const handleSend = async () => {
         setIsSending(true);
         try {
@@ -102,7 +152,8 @@ export default function Composer({ onClose, onSend, replyTo }: ComposerProps) {
                 subject,
                 body,
                 threadId: replyTo?.threadId,
-                messageId: replyTo?.messageId
+                messageId: replyTo?.messageId,
+                attachments: attachments.map(({ filename, mimeType, content }) => ({ filename, mimeType, content }))
             });
             onClose();
         } catch (error) {
@@ -239,23 +290,60 @@ export default function Composer({ onClose, onSend, replyTo }: ComposerProps) {
                         <div
                             dangerouslySetInnerHTML={{ __html: customFooter }}
                         />
+
+                        {attachments.length > 0 && (
+                            <div className="mt-8 pt-4 border-t border-gray-100">
+                                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Attachments ({attachments.length})</h4>
+                                <div className="flex flex-wrap gap-3">
+                                    {attachments.map((file, idx) => (
+                                        <div key={idx} className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3 pr-2 group hover:border-blue-300 transition-colors">
+                                            <div className="p-2 bg-white rounded-lg shadow-sm">
+                                                <FileText className="w-4 h-4 text-blue-500" />
+                                            </div>
+                                            <div className="flex flex-col min-w-0 max-w-[150px]">
+                                                <span className="text-xs font-medium text-gray-700 truncate">{file.filename}</span>
+                                                <span className="text-[10px] text-gray-400">{(file.size / 1024).toFixed(1)} KB</span>
+                                            </div>
+                                            <button
+                                                onClick={() => removeAttachment(idx)}
+                                                className="p-1.5 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors"
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="p-4 flex items-center justify-between border-t border-border bg-white">
-                        <button
-                            onClick={handleSend}
-                            disabled={isSending || !to || !subject}
-                            className="flex items-center space-x-2 bg-primary hover:bg-[#1967d2] disabled:bg-gray-300 text-white px-6 py-2 rounded-full font-medium transition-colors"
-                        >
-                            {isSending ? (
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                            ) : (
-                                <>
-                                    <span>Send</span>
-                                    <Send className="w-4 h-4" />
-                                </>
-                            )}
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={handleSend}
+                                disabled={isSending || (to.length === 0 && !toInput) || !subject}
+                                className="flex items-center space-x-2 bg-primary hover:bg-[#1967d2] disabled:bg-gray-300 text-white px-8 py-2.5 rounded-full font-bold transition-all shadow-lg shadow-blue-600/20 active:scale-95"
+                            >
+                                {isSending ? (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                ) : (
+                                    <>
+                                        <span>Send</span>
+                                        <Send className="w-4 h-4" />
+                                    </>
+                                )}
+                            </button>
+
+                            <label className="p-2.5 hover:bg-gray-100 rounded-full cursor-pointer transition-colors text-gray-600 group" title="Attach files">
+                                <input
+                                    type="file"
+                                    multiple
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                />
+                                <Paperclip className="w-5 h-5 group-hover:text-blue-600" />
+                            </label>
+                        </div>
                     </div>
                 </div>
             )}

@@ -25,6 +25,7 @@ export function constructRawEmail({
     threadId,
     messageId,
     customFooter,
+    attachments,
 }: {
     to: string;
     cc?: string;
@@ -35,8 +36,9 @@ export function constructRawEmail({
     threadId?: string;
     messageId?: string;
     customFooter?: string;
+    attachments?: { filename: string; mimeType: string; content: string }[];
 }) {
-    const boundary = "__boundary__";
+    const boundary = "signature_pro_boundary_v1";
     const footer = customFooter || FOOTER_HTML;
     const fullBody = `${body}${footer}`;
 
@@ -49,7 +51,6 @@ export function constructRawEmail({
     if (bcc) headers.push(`Bcc: ${bcc}`);
 
     headers.push(`Subject: ${subject}`);
-    headers.push(`Content-Type: text/html; charset=utf-8`);
     headers.push(`MIME-Version: 1.0`);
 
     if (messageId) {
@@ -57,11 +58,34 @@ export function constructRawEmail({
         headers.push(`References: ${messageId}`);
     }
 
-    const email = [
-        ...headers,
-        '',
-        fullBody,
-    ].join('\r\n');
+    let email = "";
+
+    if (attachments && attachments.length > 0) {
+        headers.push(`Content-Type: multipart/mixed; boundary="${boundary}"`);
+        email += headers.join('\r\n') + '\r\n\r\n';
+
+        // Body part
+        email += `--${boundary}\r\n`;
+        email += `Content-Type: text/html; charset=utf-8\r\n\r\n`;
+        email += fullBody + '\r\n\r\n';
+
+        // Attachment parts
+        for (const attachment of attachments) {
+            email += `--${boundary}\r\n`;
+            email += `Content-Type: ${attachment.mimeType}; name="${attachment.filename}"\r\n`;
+            email += `Content-Disposition: attachment; filename="${attachment.filename}"\r\n`;
+            email += `Content-Transfer-Encoding: base64\r\n\r\n`;
+            email += attachment.content + '\r\n\r\n';
+        }
+        email += `--${boundary}--`;
+    } else {
+        headers.push(`Content-Type: text/html; charset=utf-8`);
+        email = [
+            ...headers,
+            '',
+            fullBody,
+        ].join('\r\n');
+    }
 
     return Buffer.from(email)
         .toString('base64')
