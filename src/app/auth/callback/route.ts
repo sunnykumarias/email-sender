@@ -34,9 +34,9 @@ export async function GET(request: NextRequest) {
         // Create session
         await createSession(userInfo.id || userInfo.email, userInfo.email);
 
-        return NextResponse.redirect(new URL('/', request.url));
+        return NextResponse.redirect(new URL('/dashboard', request.url));
     } catch (error) {
         console.error('Auth callback error:', error);
-        return NextResponse.redirect(new URL('/?error=auth_failed', request.url));
+        return NextResponse.redirect(new URL('/#error=auth_failed', request.url));
     }
 }
