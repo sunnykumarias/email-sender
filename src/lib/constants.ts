@@ -17,7 +17,7 @@ Indehaver
 
 <br>
 
-<img src="https://ci3.googleusercontent.com/mail-sig/AIorK4zLdmSINr47g-1NUphU5CqLTEC_PI4WxrDaby5vPHR6VbpRddSbBcLyevIEsdK0Wvgpj40vYcSSSCKH"
+<img src="https://raw.githubusercontent.com/sunnykumarias/email-sender/refs/heads/main/espdk.dk.webp"
 style="max-width:100%; width:100%; height:auto; display:block; margin-bottom:18px;"
 alt="Espdk Maler & Murer">
 
