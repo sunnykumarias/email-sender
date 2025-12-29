@@ -62,18 +62,18 @@ www.espdk.dk
 
 <br>
 
-<p style="margin:0; font-size:28px; font-weight:bold;">
+<p style="margin:0; font-size:24px; font-weight:bold;">
 
 <a href="https://www.facebook.com/share/1ansAE6H11"
 style="color:#1a73e8; text-decoration:none;">
-Facebook
+Facebook-Maler
 </a>
 
 &nbsp;|&nbsp;
 
-<a href="https://www.facebook.com/share/1ansAE6H11"
+<a href="https://www.facebook.com/profile.php?id=100054294079363"
 style="color:#1a73e8; text-decoration:none;">
-Facebook 2
+Facebook-Murer
 </a>
 
 &nbsp;|&nbsp;
