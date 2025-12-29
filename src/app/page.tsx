@@ -156,26 +156,58 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* How it Works */}
+        {/* Steps / Guide Section */}
+        <section className="py-24 bg-slate-900/50 relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl lg:text-5xl font-bold text-white mb-4">Complete Setup Guide</h2>
+              <p className="text-slate-400 text-lg">Follow these simple steps to master your signatures.</p>
+            </div>
+
+            <div className="grid md:grid-cols-4 gap-6">
+              {[
+                { step: "Step 1", title: "OAuth Login", desc: "Sign in with your Google account. We only request permissions to manage and send emails on your behalf.", icon: <Shield className="w-6 h-6" /> },
+                { step: "Step 2", title: "Design HTML", desc: "Design your signature using standard HTML tables and inline CSS for maximum compatibility.", icon: <Code className="w-6 h-6" /> },
+                { step: "Step 3", title: "Paste & Save", desc: "Navigate to settings in your dashboard and paste your raw HTML. No filters applied.", icon: <CheckCircle2 className="w-6 h-6" /> },
+                { step: "Step 4", title: "Send Quality", desc: "Compose your mail. Your signature is automatically injected at the bottom of every email.", icon: <Zap className="w-6 h-6" /> }
+              ].map((s, i) => (
+                <div key={i} className="relative p-8 rounded-3xl bg-[#0f172a] border border-slate-800 animate-fade-up" style={{ animationDelay: `${i * 100}ms` }}>
+                  <div className="absolute -top-4 -left-4 w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg shadow-blue-600/20">
+                    {i + 1}
+                  </div>
+                  <h4 className="text-xl font-bold text-white mb-3 mt-4 flex items-center gap-2">
+                    <span className="p-2 bg-blue-500/10 rounded-lg text-blue-400">{s.icon}</span>
+                    {s.title}
+                  </h4>
+                  <p className="text-slate-400 text-sm leading-relaxed">{s.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How it Works / Details Section */}
         <section id="how-it-works" className="py-24 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
-              <div>
+              <div className="animate-fade-in">
                 <h2 className="text-4xl lg:text-5xl font-bold text-white mb-8 leading-tight">
-                  Ready to level up your <br />
-                  <span className="text-blue-500">Email Game?</span>
+                  Engineered for <br />
+                  <span className="text-blue-500">Maximum Precision</span>
                 </h2>
-                <div className="space-y-8">
+                <div className="space-y-6">
                   {[
-                    { step: "01", title: "Connect Account", desc: "Link your Gmail account securely via Google OAuth." },
-                    { step: "02", title: "Paste HTML", desc: "Open settings and paste your authoritative signature code." },
-                    { step: "03", title: "Start Mailing", desc: "Compose and send emails with your signature pre-loaded perfectly." }
+                    { title: "Immutable Binary Data", desc: "We treat your HTML as binary data. We don't parse it, we don't fix it, we just send it." },
+                    { title: "Cross-Platform Support", desc: "By using raw HTML tables, your signatures will look identical on Outlook, Apple Mail, and Gmail." },
+                    { title: "Secure Transmission", desc: "All data is encrypted before storage and sent via secure Google OAuth 2.0 protocols." }
                   ].map((s, i) => (
-                    <div key={i} className="flex gap-6">
-                      <div className="text-4xl font-black text-slate-800">{s.step}</div>
+                    <div key={i} className="flex gap-4 p-4 rounded-2xl hover:bg-slate-800/50 transition-colors border border-transparent hover:border-slate-700">
+                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-400">
+                        <ChevronRight className="w-5 h-5" />
+                      </div>
                       <div>
-                        <h4 className="text-xl font-bold text-white mb-2">{s.title}</h4>
-                        <p className="text-slate-400">{s.desc}</p>
+                        <h4 className="text-lg font-bold text-white mb-1">{s.title}</h4>
+                        <p className="text-slate-400 text-sm">{s.desc}</p>
                       </div>
                     </div>
                   ))}
